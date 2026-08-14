@@ -1,0 +1,44 @@
+# Deny everything, then allow back exactly what the image needs.
+#
+# Written as an allow-list rather than a list of exclusions on purpose.  A
+# deny-list only protects against the junk you thought of; the source tree this
+# stages from carries ~1.1M lines of uncommitted NPZ captures, 300k-line
+# shot-run JSON, two 287 MB archives, W&B directories and __pycache__ across
+# several Python versions. One forgotten pattern and any of it ships.
+#
+# With this inversion, a file enters the image only because it is named below.
+
+*
+
+# Build inputs
+!Dockerfile
+!entrypoint.sh
+!train.py
+
+# User commands
+!bin/
+!bin/mamba3-run
+!bin/mamba3-ship
+
+# Cameras 1-6 and their observers, staged by build.sh and deleted after.
+!src/
+!src/**
+
+# Belt and braces: even inside the allowed paths above, none of this may pass.
+# Nothing should match, and if something does, the build was staged wrong.
+src/**/__pycache__/
+src/**/*.pyc
+src/**/*.npz
+src/**/*.pt
+src/**/*.safetensors
+src/**/wandb/
+src/**/results/
+src/**/captures/
+src/**/checkpoints/
+src/**/.git/
+src/**/.env
+src/**/*.token
+src/**/*.key
+src/**/*.pem
+src/**/.netrc
+src/**/.huggingface/
